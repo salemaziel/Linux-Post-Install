@@ -59,24 +59,30 @@ install_dockerce() {
     sudo apt update && sudo apt -y full-upgrade
     sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg-agent -y
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo DEBIAN_FRONTEND=noninteractive add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" 
+    sudo DEBIAN_FRONTEND=noninteractive add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     sudo apt update
     sudo apt install docker-ce docker-ce-cli containerd.io -y
+    sleep 2
+    sudo docker -v
 }
-    echo_note " 
+
+install_dockerPortainer() {
+    echo_note " Installing Portainer on port 9000"
     
-        Installing Portainer on port 9000
-
-    "
-
     sudo docker volume create portainer_data
     sudo docker run -d -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
-
+    
     echo_note "
-#####################################################################################################    
-                            Congrats Docker has been installed
+#####################################################################################################
+
+
+            Congrats Docker Portainer has been installed, running on port:     9000
+
+
 ######################################################################################################
-"
+    "
+    sleep 2
+    
     sudo docker -v
 }
 
@@ -87,26 +93,26 @@ install_dockercompose() {
         install_dockerce
     fi
     sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose 
-    sudo docker-compose --version 
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo docker-compose --version
 }
 
 
 install_inxi() {
     echo_info " *** Installing Inxi (System/Hardware Identifier) *** "
     wget -O inxi https://github.com/smxi/inxi/raw/master/inxi
-    chmod +x inxi 
+    chmod +x inxi
     sudo mv inxi /usr/local/bin/inxi
     sudo chown root:root /usr/local/bin/inxi
 }
 
 install_googlecloudSDK() {
     echo_info " *** installing Google Cloud Platform SDK commandline tools  *** "
-    cd ; export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" 
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo DEBIAN_FRONTEND=noninteractive apt-key add - 
+    cd ; export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo DEBIAN_FRONTEND=noninteractive apt-key add -
     echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
     sudo -v
-    sudo apt update 
+    sudo apt update
     sudo apt install -y google-cloud-sdk
 }
 
@@ -115,9 +121,9 @@ apparmor_grub() {
     sudo mkdir -p /etc/default/grub.d
     echo 'GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT apparmor=1 security=apparmor"'  | sudo tee /etc/default/grub.d/apparmor.cfg
     sudo update-grub
-if [[ -z $(which firejail) ]]; then
-    sudo aa-enforce firejail-default
-fi
+    if [[ -z $(which firejail) ]]; then
+        sudo aa-enforce firejail-default
+    fi
 }
 
 wireguard_server() {
@@ -135,9 +141,9 @@ install_openssh() {
     echo_info " *** Making backup copy of original sshd_config file *** "
     sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.original
     echo_info " *** Disabling root login by SSH. Rule will be active after machine or ssh service restart *** "
-    echo 'PermitRootLogin no 
+    echo 'PermitRootLogin no
     PermitEmptyPasswords no' | sudo tee -a /etc/ssh/sshd_config
-
+    
     echo_info " *** Adding file with suggested SSH settings to /etc/ssh/sshd_config.suggested *** "
     sudo bash -c 'cat << EOF > /etc/ssh/sshd_config.suggested
 #### Using this file as your sshd_config assumes you have created an
@@ -149,11 +155,11 @@ install_openssh() {
 ## Even if its perfect, you should use this instead, make it a habit:
 # sudo kill -SIGHUP $(pgrep -f "sshd -D")
 
-## sshd rereads its configuration file when it receives a hangup 
-## signal, SIGHUP, by executing itself with the name and options 
+## sshd rereads its configuration file when it receives a hangup
+## signal, SIGHUP, by executing itself with the name and options
 ## it was started with, e.g. /usr/sbin/sshd.
 
-## The pgrep -f "sshd -D" part will return only the PID of the 
+## The pgrep -f "sshd -D" part will return only the PID of the
 ## sshd daemon process that listens for new connections
 
 
@@ -200,7 +206,7 @@ Subsystem	sftp	/usr/lib/openssh/sftp-server
 
 
 ## Add your users or groups here
-## Ex. 
+## Ex.
 #AllowUsers john sarah erik
 #AllowGroups group1 staff mybackups
 
@@ -214,7 +220,7 @@ LogLevel VERBOSE
 
 
 ## To receive emails** upon ssh logins getting root access,
-## enter the following in /root/.bashrc , replacing 
+## enter the following in /root/.bashrc , replacing
 ## ServerName and your@email.com with your own:
 ## **Must have mailx package installed**
 
@@ -284,8 +290,8 @@ LogLevel VERBOSE
 
 ## https://stribika.github.io/2015/01/04/secure-secure-shell.html
 EOF'
-
-sudo systemctl enable ssh
+    
+    sudo systemctl enable ssh
 }
 
 install_fail2ban() {
@@ -319,24 +325,24 @@ setup_sftp() {
     sudo kill -SIGHUP $(pgrep -f "sshd -D")
 }
 
-# Message of the day 
+# Message of the day
 add_daymsg() {
     echo_note " *** Setting System stats Message of The Day *** "
-wget https://raw.githubusercontent.com/jwandrews99/Linux-Automation/master/misc/motd.sh
-sudo mv motd.sh /etc/update-motd.d/05-info
-sudo chmod +x /etc/update-motd.d/05-info
+    wget https://raw.githubusercontent.com/jwandrews99/Linux-Automation/master/misc/motd.sh
+    sudo mv motd.sh /etc/update-motd.d/05-info
+    sudo chmod +x /etc/update-motd.d/05-info
 }
 
 unattended_sec() {
-echo_note " *** Setting Automatic downloads of security updates *** "
-sudo apt-get install -y unattended-upgrades
-echo 'Unattended-Upgrade::Allowed-Origins {
+    echo_note " *** Setting Automatic downloads of security updates *** "
+    sudo apt-get install -y unattended-upgrades
+    echo 'Unattended-Upgrade::Allowed-Origins {
    "${distro_id}:${distro_codename}-security";
 //  "${distro_id}:${distro_codename}-updates";
 //  "${distro_id}:${distro_codename}-proposed";
 //  "${distro_id}:${distro_codename}-backports";
-Unattended-Upgrade::Automatic-Reboot "true"; 
-};' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
+Unattended-Upgrade::Automatic-Reboot "true";
+    };' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
 }
 
 add_usersudo() {
@@ -352,4 +358,38 @@ add_usersudo() {
     fi
     echo_note "New user $new_user successfully created with password of $new_passwd"
     sleep 2
+}
+
+
+install_phpcomposer() {
+    if [[ -z $(which php) ]]; then
+        echo "Need To install PHP first "
+        sudo apt install php php-common
+    fi
+    EXPECTED_CHECKSUM="$(wget -q -O - https://composer.github.io/installer.sig)"
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+    
+    if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
+    then
+        >&2 echo 'ERROR: Invalid installer checksum'
+        rm composer-setup.php
+        exit 1
+    fi
+    
+    php composer-setup.php --quiet
+    RESULT=$?
+    rm composer-setup.php
+    sudo mv composer.phar /usr/local/bin/composer
+    exit $RESULT
+}
+
+sysctl_conf() {
+    echo "# These are to use bbr, to make tcp protocol faster (aka most of the internet):"  | sudo tee -a /etc/sysctl.conf
+    echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf
+    echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf
+    echo " " | sudo tee -a /etc/sysctl.conf
+    echo "This disables WPAD, auto-proxy finding, to fix security issue of malicious websites finding local ip addresses:"  | sudo tee -a /etc/sysctl.conf
+    echo "net.ipv4.tcp_challenge_ack_limit = 999999999" | sudo tee -a /etc/sysctl.conf
+    echo " " | sudo tee -a /etc/sysctl.conf
 }

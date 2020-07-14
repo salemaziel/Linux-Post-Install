@@ -42,7 +42,7 @@ identify_machine() {
 
 
 
-source ./functions.txt
+source ./functions.sh
 
 
 ###### Beginning of script   #####
@@ -96,28 +96,28 @@ case $install_webserver in
         sleep 2
         echo_info "Installing a few packages first"
         sleep 2
-        sudo apt-get install --install-recommends tasksel gdebi dialog -y
+        sudo apt-get install --install-recommends tasksel dialog -y
             ;;
     y)
         echo_note "That's whats up. We'll configure that later"
         sleep 2
         echo_info "Installing a few packages first"
         sleep 2
-        sudo apt-get install --install-recommends tasksel gdebi dialog -y
+        sudo apt-get install --install-recommends tasksel dialog -y
             ;;
     N)
         echo_note "Fsho."
         sleep 2
         echo_info "Installing a few packages"
         sleep 2
-        sudo apt-get install --install-recommends gdebi dialog -y
+        sudo apt-get install --install-recommends dialog -y
             ;;
     n)
         echo_note "Fsho."
         sleep 2
         echo_info "Installing a few packages"
         sleep 2
-        sudo apt-get install --install-recommends gdebi dialog -y
+        sudo apt-get install --install-recommends dialog -y
             ;;
     *)
         echo_fail "Bruh."
@@ -307,6 +307,12 @@ do
             ;;
         18)
             unattended_sec
+            ;;
+        19) 
+            install_phpcomposer
+            ;;
+        20)
+            sysctl_conf
             ;;
     esac
 done
