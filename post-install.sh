@@ -58,7 +58,32 @@ fi
 if [[ -z $(identify_machine | grep -e 'Ubuntu' -e 'Debian') ]]; then
         echo -e "Sorry, this script only works on Ubuntu and Debian"
         sleep 2
-        exit 1
+        read -p "Try To Continue Anyway? [ y / n ] " continue_anyway
+
+        case $continue_anyway in
+            Y)
+                echo_warn "Ok. Hope you know what you're doing"
+                sleep 2
+                echo_note "Hit Ctrl+c if you need to exit. May need to enter it a few times"
+                sleep 2
+                    ;;
+            y)
+                echo_warn "Ok. Hope you know what you're doing"
+                sleep 2
+                echo_note "Hit Ctrl+c if you need to exit. May need to enter it a few times"
+                sleep 2
+                    ;;
+            N)
+                echo_note "Fsho, Quitting. Maybe just try running parts of this script toget what you need"
+                sleep 4
+                exit 0
+                    ;;
+            n)
+                echo_note "Fsho, Quitting. Maybe just try running parts of this script toget what you need"
+                sleep 4
+                exit 0
+                    ;;
+        esac
 fi
 
 clear
