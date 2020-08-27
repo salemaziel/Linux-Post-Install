@@ -393,3 +393,17 @@ sysctl_conf() {
     echo "net.ipv4.tcp_challenge_ack_limit = 999999999" | sudo tee -a /etc/sysctl.conf
     echo " " | sudo tee -a /etc/sysctl.conf
 }
+
+add_php_ppa() {
+    sudo apt install software-properties-common -y
+    sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php
+    sudo apt update
+}
+
+#
+# If you are using apache2, you are advised to add ppa:ondrej/apache2
+# If you are using nginx, you are advised to add ppa:ondrej/nginx-mainline
+#   or ppa:ondrej/nginx
+#
+#
+#
