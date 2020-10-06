@@ -24,7 +24,7 @@ echo_fail()   { echo -e "${ANSI_RED}${@}${ANSI_RST}"; }
 
 ## Add your favorite/commonly used packages available from the system's package maanger here:
 general_linuxpkgs() {
-    sudo DEBIAN_FRONTEND=noninteractive apt install htop git apt-transport-https zip unzip netcat nano wdiff -y
+    sudo DEBIAN_FRONTEND=noninteractive apt install htop git apt-transport-https zip unzip nano wdiff -y
 }
 
 identify_machine() {
@@ -74,12 +74,12 @@ if [[ -z $(identify_machine | grep -e 'Ubuntu' -e 'Debian') ]]; then
                 sleep 2
                     ;;
             N)
-                echo_note "Fsho, Quitting. Maybe just try running parts of this script toget what you need"
+                echo_note "Fsho, Quitting. Maybe just try running parts of this script to get what you need"
                 sleep 4
                 exit 0
                     ;;
             n)
-                echo_note "Fsho, Quitting. Maybe just try running parts of this script toget what you need"
+                echo_note "Fsho, Quitting. Maybe just try running parts of this script to get what you need"
                 sleep 4
                 exit 0
                     ;;
@@ -121,28 +121,28 @@ case $install_webserver in
         sleep 2
         echo_info "Installing a few packages first"
         sleep 2
-        sudo apt-get install --install-recommends tasksel dialog -y
+        sudo apt-get install tasksel dialog -y
             ;;
     y)
         echo_note "That's whats up. We'll configure that later"
         sleep 2
         echo_info "Installing a few packages first"
         sleep 2
-        sudo apt-get install --install-recommends tasksel dialog -y
+        sudo apt-get install tasksel dialog -y
             ;;
     N)
         echo_note "Fsho."
         sleep 2
         echo_info "Installing a few packages"
         sleep 2
-        sudo apt-get install --install-recommends dialog -y
+        sudo apt-get install dialog -y
             ;;
     n)
         echo_note "Fsho."
         sleep 2
         echo_info "Installing a few packages"
         sleep 2
-        sudo apt-get install --install-recommends dialog -y
+        sudo apt-get install dialog -y
             ;;
     *)
         echo_fail "Bruh."
@@ -243,7 +243,7 @@ cmd=(dialog --separate-output --checklist "Default is to Install None. Navigate 
 Select/Unselect with Spacebar. Hit Enter key When Finished To Continue. \n
 ESC key/Cancel will continue without installing any options \n
 Use Ctrl+c to quit" 22 126 16)
-options=(1 "OpenSSH server. Recommended even if already have ssh server running" off
+options=(1 "OpenSSH server. Recommended even if already have ssh server running" on
          2 "Fail2ban" off
          3 "Speedtest-cli" off
          4 "Inxi: System/Hardware Identifier" off
@@ -260,7 +260,9 @@ options=(1 "OpenSSH server. Recommended even if already have ssh server running"
          15 "Your usual Linux packages (User configured at top of this script)" off
          16 "Harden Linux by loading Apparmor at boot" off
          17 "Add System Stats message of the day" off
-         18 "Set up Unattended Updates (security updates only)" off)
+         18 "Set up Unattended Updates (security updates only)" off
+         19 "Install php Composer" off
+         20 "Disable WPAD/auto-proxy finding & use bbr for tcp in sysctl.conf" off )
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
 echo_note " ********************************************* "
