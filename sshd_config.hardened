@@ -5,7 +5,7 @@
 #### Extended test with: sshd -T
 
 ## Even if its perfect, you should use this instead, make it a habit:
-# sudo kill -SIGHUP $(pgrep -f "sshd -D")
+## sudo kill -SIGHUP $(pgrep -f "sshd -D")
 
 ## sshd rereads its configuration file when it receives a hangup 
 ## signal, SIGHUP, by executing itself with the name and options 
@@ -18,7 +18,7 @@ KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
 
-Port 2222
+Port 22
 PermitRootLogin no
 PermitEmptyPasswords no
 PasswordAuthentication no

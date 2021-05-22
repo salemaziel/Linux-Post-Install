@@ -12,7 +12,7 @@ install_teamviewer() {
 install_tor() {
     echo_info " *** installing Tor+Torsocks *** "
     source /etc/os-release
-    echo "deb https://deb.torproject.org/torproject.org $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/onions.list
+    echo "deb https://deb.torproject.org/torproject.org ${DISTRO_CODENAME} main" | sudo tee /etc/apt/sources.list.d/onions.list
     sudo bash -c 'curl https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --import'
     sudo bash -c 'gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -'
     sudo apt update
@@ -57,14 +57,14 @@ install_dockerce() {
     echo_info " *** Installing Docker-CE + Portainer on port 9000 *** "
     sudo apt remove docker docker-engine docker.io containerd runc -y
     sudo apt update && sudo apt -y full-upgrade
-    case $DISTRIB_ID in 
-        Ubuntu)
+    case ${DISTRO} in 
+        ubuntu)
             sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg-agent -y
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
             sudo DEBIAN_FRONTEND=noninteractive add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
             ;;
-        Debian)
-            sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+        debian)
+            sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release -y
             curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
             echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
             ;;
@@ -141,6 +141,14 @@ wireguard_server() {
     chmod +x wireguard-install.sh
     ./wireguard-install.sh
 }
+
+wireguard_server_manager() {
+    echo_info " *** Installing Wireguard VPN server & Manager  *** "
+    curl -O https://raw.githubusercontent.com/angristan/wireguard-install/master/wireguard-install.sh --create-dirs -o /usr/local/bin/wireguard-manager.sh
+    chmod +x /usr/local/bin/wireguard-install.sh
+    bash /usr/local/bin/wireguard-install.sh
+}
+
 
 install_openssh() {
     echo_info " *** Installing OpenSSH server"
@@ -344,15 +352,22 @@ add_daymsg() {
 }
 
 unattended_sec() {
-    echo_note " *** Setting Automatic downloads of security updates *** "
-    sudo apt-get install -y unattended-upgrades
-    echo 'Unattended-Upgrade::Allowed-Origins {
-   "${distro_id}:${distro_codename}-security";
-//  "${distro_id}:${distro_codename}-updates";
-//  "${distro_id}:${distro_codename}-proposed";
-//  "${distro_id}:${distro_codename}-backports";
-Unattended-Upgrade::Automatic-Reboot "true";
+    case ${DISTRO} in
+        ubuntu)
+            echo_note " *** Setting Automatic downloads of security updates *** "
+            sudo apt-get install -y unattended-upgrades
+            echo 'Unattended-Upgrade::Allowed-Origins {
+            "${distro_id}:${distro_codename}-security";
+//          "${distro_id}:${distro_codename}-updates";
+//          "${distro_id}:${distro_codename}-proposed";
+//          "${distro_id}:${distro_codename}-backports";
+            Unattended-Upgrade::Automatic-Reboot "true";
     };' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
+            ;;
+        *)
+            echo_warn " *** Sorry, only available for Ubuntu *** "
+            ;;
+    esac
 }
 
 add_usersudo() {

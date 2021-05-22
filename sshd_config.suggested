@@ -5,7 +5,7 @@
 #### Extended test with: sshd -T
 
 ## Even if its perfect, you should use this instead, make it a habit:
-# sudo kill -SIGHUP $(pgrep -f "sshd -D")
+## sudo kill -SIGHUP $(pgrep -f "sshd -D")
 
 ## sshd rereads its configuration file when it receives a hangup 
 ## signal, SIGHUP, by executing itself with the name and options 
@@ -15,7 +15,7 @@
 ## sshd daemon process that listens for new connections
 
 
-Port 2222
+Port 22
 PermitRootLogin no
 PermitEmptyPasswords no
 PasswordAuthentication no
