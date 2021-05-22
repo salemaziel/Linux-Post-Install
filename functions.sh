@@ -57,9 +57,18 @@ install_dockerce() {
     echo_info " *** Installing Docker-CE + Portainer on port 9000 *** "
     sudo apt remove docker docker-engine docker.io containerd runc -y
     sudo apt update && sudo apt -y full-upgrade
-    sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg-agent -y
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo DEBIAN_FRONTEND=noninteractive add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    case $DISTRIB_ID in 
+        Ubuntu)
+            sudo apt install apt-transport-https ca-certificates curl software-properties-common gnupg-agent -y
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo DEBIAN_FRONTEND=noninteractive add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            ;;
+        Debian)
+            sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+            curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            ;;
+    esac
     sudo apt update
     sudo apt install docker-ce docker-ce-cli containerd.io -y
     sleep 2
@@ -92,7 +101,7 @@ install_dockercompose() {
         sleep 2
         install_dockerce
     fi
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     sudo docker-compose --version
 }
@@ -128,8 +137,9 @@ apparmor_grub() {
 
 wireguard_server() {
     echo_info " *** Installing Wireguard VPN server  *** "
-    wget https://raw.githubusercontent.com/l-n-s/wireguard-install/master/wireguard-install.sh -O wireguard-install.sh
-    bash wireguard-install.sh
+    curl -O https://raw.githubusercontent.com/angristan/wireguard-install/master/wireguard-install.sh
+    chmod +x wireguard-install.sh
+    ./wireguard-install.sh
 }
 
 install_openssh() {
@@ -389,7 +399,7 @@ sysctl_conf() {
     echo "net.core.default_qdisc=fq" | sudo tee -a /etc/sysctl.conf
     echo "net.ipv4.tcp_congestion_control=bbr" | sudo tee -a /etc/sysctl.conf
     echo " " | sudo tee -a /etc/sysctl.conf
-    echo "This disables WPAD, auto-proxy finding, to fix security issue of malicious websites finding local ip addresses:"  | sudo tee -a /etc/sysctl.conf
+    echo "# This disables WPAD, auto-proxy finding, to fix security issue of malicious websites finding local ip addresses:"  | sudo tee -a /etc/sysctl.conf
     echo "net.ipv4.tcp_challenge_ack_limit = 999999999" | sudo tee -a /etc/sysctl.conf
     echo " " | sudo tee -a /etc/sysctl.conf
 }
